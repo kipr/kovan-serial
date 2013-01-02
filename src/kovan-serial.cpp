@@ -1,4 +1,4 @@
-#include <QApplication>
+#include <QCoreApplication>
 
 #include <kovanserial/usb_serial.hpp>
 #include <kovanserial/tcp_server.hpp>
@@ -24,7 +24,7 @@ std::string property(const std::string &prop)
 
 int main(int argc, char *argv[])
 {
-	QApplication app(argc, argv);
+	QCoreApplication app(argc, argv);
 	
 	char serialPort[128];
 	if(argc == 2) strncpy(serialPort, argv[1], 128);
