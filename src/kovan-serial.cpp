@@ -26,6 +26,13 @@ int main(int argc, char *argv[])
 {
 	QCoreApplication app(argc, argv);
 	
+	// Yes, yes... this is awful.
+	// I was having all sorts of ordering issues with g_serial on boot
+	// so this is the temporary workaround.
+	if(system("modprobe g_serial") != 0) {
+		std::cout << "Warning: failed to modprobe g_serial" << std::endl;
+	}
+	
 	char serialPort[128];
 	if(argc == 2) strncpy(serialPort, argv[1], 128);
 	else strncpy(serialPort, "/dev/ttyGS0", 128);
