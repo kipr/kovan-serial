@@ -63,7 +63,8 @@ KovanSerial *ServerThread::proto() const
 bool ServerThread::handle(const Packet &p)
 {
 	qDebug() << "Got packet of type" << p.type;
-	if(p.type == Command::FileHeader) handleArchive(p);
+	if(p.type == Command::KnockKnock) m_proto->whosThere();
+	else if(p.type == Command::FileHeader) handleArchive(p);
 	else if(p.type == Command::FileAction) handleAction(p);
 	else if(p.type == Command::Hangup) return false;
 	return true;
