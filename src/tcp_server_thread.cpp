@@ -13,8 +13,8 @@ void TcpServerThread::run()
 {
 	Packet p;
 	while(!isStopping()) {
+		QThread::yieldCurrentThread();
 		if(!dynamic_cast<TcpServer *>(transmitter())->accept(3000)) continue;
 		while(proto()->next(p, 5000) && handle(p));
-		QThread::yieldCurrentThread();
 	}
 }

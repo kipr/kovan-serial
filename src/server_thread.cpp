@@ -45,8 +45,8 @@ void ServerThread::run()
 {
 	Packet p;
 	while(!m_stop) {
-		while(m_proto->next(p, 5000) && handle(p));
 		QThread::yieldCurrentThread();
+		while(m_proto->next(p, 5000) && handle(p)) QThread::yieldCurrentThread();
 	}
 }
 
@@ -82,7 +82,8 @@ void ServerThread::handleArchive(const Packet &headerPacket)
 		return;
 	}
 	
-	std::ofstream file((USER_ARCHIVES_DIR + KOVAN_SERIAL_PATH_SEP + header.dest).c_str(), std::ios::binary);
+	std::ofstream file((USER_ARCHIVES_DIR + KOVAN_SERIAL_PATH_SEP
+		+ header.dest).c_str(), std::ios::binary);
 	good = file.is_open();
 	if(!m_proto->confirmFile(good) || !good) return;
 	
