@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
 	if(server.makeAvailable()) providers[1] = new TcpServerThread(&server);
 	else perror("tcp");
 	
-	for(int i = 0; i < 1; ++i) {
+	for(int i = 0; i < 2; ++i) {
 		if(!providers[i]) continue;
 		providers[i]->start();
 	}
