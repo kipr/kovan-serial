@@ -45,8 +45,8 @@ void ServerThread::run()
 {
 	Packet p;
 	while(!m_stop) {
-		QThread::yieldCurrentThread();
-		while(m_proto->next(p, 5000) && handle(p)) QThread::yieldCurrentThread();
+		QThread::msleep(100);
+		while(m_proto->next(p, 5000) && handle(p));
 	}
 }
 
