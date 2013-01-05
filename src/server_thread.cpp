@@ -10,7 +10,8 @@
 #include <kovanserial/platform_defines.hpp>
 
 #include <QDebug>
-#include <QFile>
+#include <QFileInfo>
+#include <QDir>
 
 #include <fstream>
 #include <iostream>
@@ -102,11 +103,46 @@ void ServerThread::handleAction(const Packet &action)
 {
 	Command::FileActionData data;
 	action.as(data);
+	
+	const QString type = data.action;
+	
+	if(type == COMMAND_ACTION_READ) {
+		QFileInfo info(data.dest);
+		bool good = info.exists();
+		if(info.isDir()) {
+			std::stringstream stream;
+			QList<QFileInfo> entries = info.dir().entryInfoList(QDir::NoDot |
+				QDir::NoDotDot | QDir::Dirs | QDir::Files);
+			foreach(const QFileInfo &entry, entries) {
+				char typeChar = 0;
+				if(entry.isDir()) typeChar = 'd';
+				else if(entry.isFile()) typeChar = 'f';
+				else if(entry.isSymLink()) typeChar = 'l';
+				else typeChar = '?';
+				
+				stream << typeChar << " " << entry.fileName().toStdString() << std::endl;
+			}
+			stream.seekg(0, std::ios_base::beg);
+			if(!m_proto->confirmFileAction(true)) return;
+			if(!m_proto->sendFile(data.dest, "", &stream)) {
+				std::cout << "Sending results failed." << std::endl;
+			}
+		} else if(info.isFile()) {
+			std::ifstream file(data.dest, std::ios::binary);
+			good = file.is_open();
+
+			if(!m_proto->confirmFileAction(good) || !good) return;
+			if(!m_proto->sendFile(data.dest, "", &file)) {
+				std::cout << "Sending results failed." << std::endl;
+			}
+			file.close();
+		} else m_proto->confirmFileAction(false);
+		return;
+	}
 
 	const QString arcPath = QString::fromStdString(USER_ARCHIVES_DIR) + "/" + data.dest;
 	const QString binPath = QString::fromStdString(USER_BINARIES_DIR) + "/" + data.dest;
 	
-	QString type = data.action;
 	if(type == COMMAND_ACTION_COMPILE) {
 		Kiss::KarPtr archive = Kiss::Kar::load(arcPath);
 		const bool good = !archive.isNull();
