@@ -171,5 +171,5 @@ void ServerThread::handleAction(const Packet &action)
 		if(!m_proto->confirmFileAction(good) || !good) return;
 		m_proto->sendFileActionProgress(true, 1.0);
 		emit run(binPath);
-	}
+	} else m_proto->confirmFileAction(false);
 }
