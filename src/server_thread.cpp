@@ -105,6 +105,7 @@ void ServerThread::handleAction(const Packet &action)
 	action.as(data);
 	
 	const QString type = data.action;
+	std::cout << "Handling acton: " << data.action << std::endl;
 	
 	if(type == COMMAND_ACTION_READ) {
 		QFileInfo info(data.dest);
