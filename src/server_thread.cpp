@@ -158,6 +158,7 @@ void ServerThread::handleAction(const Packet &action)
 			std::cout << "Sending results failed." << std::endl;
 		}
 		file.close();
+		std::cout << "Action screenshot finished" << std::endl;
 		return;
 	}
 
