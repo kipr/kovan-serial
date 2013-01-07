@@ -106,7 +106,7 @@ Compiler::OutputList CompileWorker::compile()
 	qDebug() << "Extracted" << extracted;
 	
 	Engine engine(Compilers::instance()->compilers());
-	Options opts = Options::load(QDir::current().filePath("platform.hints"));
+	Options opts = Options::load("/etc/kovan/platform.hints");
 	opts.replace("${PREFIX}", QDir::currentPath() + "/prefix");
 	Compiler::OutputList ret = engine.compile(Input::fromList(extracted), opts, this);
 	
