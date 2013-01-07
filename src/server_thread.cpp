@@ -109,9 +109,10 @@ void ServerThread::handleAction(const Packet &action)
 	
 	if(type == COMMAND_ACTION_READ) {
 		QFileInfo info(data.dest);
-		bool good = info.exists();
 		if(info.isDir()) {
 			std::stringstream stream;
+			const bool good = info.exists();
+			if(!m_proto->confirmFileAction(good) || !good) return;
 			QList<QFileInfo> entries = info.dir().entryInfoList(QDir::NoDot |
 				QDir::NoDotDot | QDir::Dirs | QDir::Files);
 			foreach(const QFileInfo &entry, entries) {
@@ -124,17 +125,36 @@ void ServerThread::handleAction(const Packet &action)
 				stream << typeChar << " " << entry.fileName().toStdString() << std::endl;
 			}
 			stream.seekg(0, std::ios_base::beg);
-			if(!m_proto->confirmFileAction(true)) return;
 			if(!m_proto->sendFile(data.dest, "", &stream)) {
 				std::cout << "Sending results failed." << std::endl;
 			}
 			return;
 		}
 		std::ifstream file(data.dest, std::ios::binary);
-		good = file.is_open();
+		const bool good = file.is_open();
 
-		if(!m_proto->confirmFileAction(good) || !good) return;
+		if(!m_proto->confirmFileAction(good) || !good) {
+			std::cout << "Confirm failed with " << good << std::endl;
+			return;
+		}
+		
 		if(!m_proto->sendFile(data.dest, "", &file)) {
+			std::cout << "Sending results failed." << std::endl;
+		}
+		file.close();
+		return;
+	}
+	
+	if(type == COMMAND_ACTION_SCREENSHOT) {
+		system("cat /dev/fb0 > /latest_screenshot.raw565");
+		
+		std::ifstream file("/latest_screenshot.raw565", std::ios::binary);
+		const bool good = file.is_open();
+		if(!m_proto->confirmFileAction(good) || !good) {
+			std::cout << "Confirm failed with " << good << std::endl;
+			return;
+		}
+		if(!m_proto->sendFile("/latest_screenshot.raw565", "", &file)) {
 			std::cout << "Sending results failed." << std::endl;
 		}
 		file.close();
