@@ -128,16 +128,16 @@ void ServerThread::handleAction(const Packet &action)
 			if(!m_proto->sendFile(data.dest, "", &stream)) {
 				std::cout << "Sending results failed." << std::endl;
 			}
-		} else if(info.isFile()) {
-			std::ifstream file(data.dest, std::ios::binary);
-			good = file.is_open();
+			return;
+		}
+		std::ifstream file(data.dest, std::ios::binary);
+		good = file.is_open();
 
-			if(!m_proto->confirmFileAction(good) || !good) return;
-			if(!m_proto->sendFile(data.dest, "", &file)) {
-				std::cout << "Sending results failed." << std::endl;
-			}
-			file.close();
-		} else m_proto->confirmFileAction(false);
+		if(!m_proto->confirmFileAction(good) || !good) return;
+		if(!m_proto->sendFile(data.dest, "", &file)) {
+			std::cout << "Sending results failed." << std::endl;
+		}
+		file.close();
 		return;
 	}
 
