@@ -47,7 +47,7 @@ void ServerThread::run()
 	Packet p;
 	while(!m_stop) {
 		QThread::msleep(100);
-		while(m_proto->next(p, 5000) && handle(p));
+		while(m_proto->next(p, 2) && handle(p)) std::cout << "Finished handling one command" << std::endl;
 	}
 }
 
