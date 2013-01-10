@@ -16,6 +16,7 @@ public:
 	const Advert &advert() const;
 	
 private slots:
+	void reset();
 	void beat();
 	
 private:
