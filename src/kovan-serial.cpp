@@ -47,10 +47,9 @@ int main(int argc, char *argv[])
 		providers[i]->start();
 	}
 	
-	Heartbeat heart;
-	
-	
+	Heartbeat *heart = new Heartbeat();
 	int ret = app.exec();
+	delete heart;
 	
 	for(int i = 0; i < 2; ++i) {
 		if(!providers[i]) continue;
