@@ -36,6 +36,11 @@ const Advert &Heartbeat::advert() const
 
 void Heartbeat::reset()
 {
+
+}
+
+void Heartbeat::beat()
+{
 	// TODO: We really, really should cache this and listen for changes with inotify
 	Config *settings = Config::load(DEVICE_SETTINGS);
 	QString name = tr("Nameless");
@@ -43,9 +48,5 @@ void Heartbeat::reset()
 	setAdvert(Advert("Unknown", "Unknown", "KIPR Link", name.toUtf8()));
 	delete settings;
 	m_advertiser.reset();
-}
-
-void Heartbeat::beat()
-{
 	m_advertiser.pulse(m_advert);
 }
