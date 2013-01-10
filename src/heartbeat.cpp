@@ -50,5 +50,5 @@ void Heartbeat::beat()
 	delete settings;
 	m_advertiser.reset();
 	m_advertiser.pulse(m_advert);
-	qDebug() << "Beat";
+	qDebug() << "Beat with" << name;
 }
