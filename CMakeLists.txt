@@ -32,4 +32,4 @@ ADD_DEFINITIONS(-Wall)
 ADD_EXECUTABLE(kovan-serial ${kovan-serial_SRCS_CXX})
 
 SET(EXECUTABLE_OUTPUT_PATH ${kovan-serial_SOURCE_DIR}/deploy)
-TARGET_LINK_LIBRARIES(kovan-serial ${QT_LIBRARIES} pcompiler kar kovanserial)
+TARGET_LINK_LIBRARIES(kovan-serial ${QT_LIBRARIES} pcompiler kar kovanserial kovan)

@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
 	}
 	
 	Heartbeat heart;
-	heart.setAdvert(Advert("1234", "0.1", "kovan", "betabot"));
+	
 	
 	int ret = app.exec();
 	
