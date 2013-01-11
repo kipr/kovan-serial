@@ -83,6 +83,9 @@ void ServerThread::handleArchive(const Packet &headerPacket)
 		return;
 	}
 	
+	// Remove old binary
+	remove((USER_BINARIES_DIR + KOVAN_SERIAL_PATH_SEP + header.dest).c_str());
+	
 	std::ofstream file((USER_ARCHIVES_DIR + KOVAN_SERIAL_PATH_SEP
 		+ header.dest).c_str(), std::ios::binary);
 	good = file.is_open();
