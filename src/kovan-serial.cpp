@@ -12,6 +12,7 @@
 
 #include <cstdlib>
 #include <cstdio>
+#include <unistd.h>
 
 std::string property(const std::string &prop)
 {
@@ -33,8 +34,13 @@ int main(int argc, char *argv[])
 	ServerThread *providers[2] = {0, 0};
 	
 	UsbSerial usb(serialPort);
-	if(usb.makeAvailable()) providers[0] = new ServerThread(&usb);
-	else perror("open");
+	// This may execute before the device is ready for opening.
+	// Wait until it is ready.
+	while(!usb.makeAvailable()) {
+		perror("open");
+		sleep(2);
+	}
+	providers[0] = new ServerThread(&usb);
 	
 	TcpServer server;
 	server.bind(KOVAN_SERIAL_PORT);
