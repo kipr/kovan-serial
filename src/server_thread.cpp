@@ -44,10 +44,21 @@ bool ServerThread::isStopping() const
 
 void ServerThread::run()
 {
+	unsigned int i = 0;
+
 	Packet p;
 	while(!m_stop) {
+		i++;
 		QThread::msleep(100);
-		while(m_proto->next(p, 2) && handle(p)) std::cout << "Finished handling one command" << std::endl;
+		while(m_proto->next(p, 2) && handle(p)){
+			std::cout << "Finished handling one command" << std::endl;
+			i = 0;
+		}
+
+		if(i > 0 && i % 100 == 0) {
+			m_transmitter->endSession();
+			m_transmitter->makeAvailable();
+		}
 	}
 }
 
