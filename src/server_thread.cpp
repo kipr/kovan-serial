@@ -51,6 +51,7 @@ void ServerThread::run()
 		Transmitter::Return ret = m_transport->recv(p, 2);
 		if(ret == Transmitter::Success && handle(p)) std::cout << "Finished handling one command" << std::endl;
 		else if(ret == Transmitter::Error) {
+			qDebug() << "USB ERROR!!!";
 			// USB has entered error state.
 			m_transmitter->endSession();
 			m_transmitter->makeAvailable();
