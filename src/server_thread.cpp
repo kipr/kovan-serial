@@ -49,13 +49,12 @@ void ServerThread::run()
 	while(!m_stop) {
 		QThread::msleep(100);
 		Transmitter::Return ret = m_transport->recv(p, 2);
+		qDebug() << "ret =" << ret;
 		while(ret == Transmitter::Success && handle(p)) std::cout << "Finished handling one command" << std::endl;
 		if(ret == Transmitter::Error) {
-			// USB has entered error state. Renew connection.
-			if(errno == EIO) {
-				m_transmitter->endSession();
-				m_transmitter->makeAvailable();
-			}
+			// USB has entered error state.
+			m_transmitter->endSession();
+			m_transmitter->makeAvailable();
 		}
 	}
 }
