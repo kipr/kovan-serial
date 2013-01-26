@@ -44,6 +44,7 @@ bool ServerThread::isStopping() const
 
 void ServerThread::run()
 {
+
 	Packet p;
 	while(!m_stop) {
 		QThread::msleep(100);
