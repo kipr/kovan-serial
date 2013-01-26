@@ -46,11 +46,18 @@ void ServerThread::run()
 {
 
 	Packet p;
+	unsigned long i = 1;
 	while(!m_stop) {
 		QThread::msleep(100);
 		Transmitter::Return ret = m_transport->recv(p, 2);
 		if(ret == Transmitter::Success && handle(p)) std::cout << "Finished handling one command" << std::endl;
-		else if(ret == Transmitter::Error) {
+		
+		// Linux will report an EIO error if the usb device is in an error state.
+		// The only problem is that we have to *write* to get that error code.
+		// This writes an array of size zero every two seconds to check for EIO.
+		if(i++ % 20 == 0) {
+			uint8_t dummy[0];
+			if(m_transmitter->write(dummy, 0) >= 0) continue;
 			qDebug() << "USB ERROR!!!";
 			// USB has entered error state.
 			m_transmitter->endSession();
