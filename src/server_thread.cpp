@@ -49,7 +49,6 @@ void ServerThread::run()
 	while(!m_stop) {
 		QThread::msleep(100);
 		Transmitter::Return ret = m_transport->recv(p, 2);
-		qDebug() << "ret =" << ret;
 		if(ret == Transmitter::Success && handle(p)) std::cout << "Finished handling one command" << std::endl;
 		else if(ret == Transmitter::Error) {
 			// USB has entered error state.
