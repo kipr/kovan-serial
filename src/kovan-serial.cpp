@@ -9,6 +9,7 @@
 #include "server_thread.hpp"
 #include "tcp_server_thread.hpp"
 #include "heartbeat.hpp"
+#include "Serial.h"
 
 #include <cstdlib>
 #include <cstdio>
@@ -48,8 +49,11 @@ int main(int argc, char *argv[])
 	if(server.makeAvailable()) providers[1] = new TcpServerThread(&server);
 	else perror("tcp");
 	
+	Serial *serialDBus = new Serial("org.kipr.Serial", "org/kipr/Serial", QDBusConnection::systemBus());
+	
 	for(int i = 0; i < 2; ++i) {
 		if(!providers[i]) continue;
+		QObject::connect(providers[i], SIGNAL(run(QString)), serialDBus, SIGNAL(Run(QString)));
 		providers[i]->start();
 	}
 	
@@ -63,6 +67,8 @@ int main(int argc, char *argv[])
 		providers[i]->wait();
 		delete providers[i];
 	}
+	
+	delete serialDBus;
 	
 	usb.endSession();
 	server.endSession();
