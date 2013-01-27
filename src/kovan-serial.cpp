@@ -49,7 +49,8 @@ int main(int argc, char *argv[])
 	if(server.makeAvailable()) providers[1] = new TcpServerThread(&server);
 	else perror("tcp");
 	
-	Serial *serialDBus = new Serial("org.kipr.Serial", "org/kipr/Serial", QDBusConnection::systemBus());
+	QDBusConnection::sessionBus().registerService("org.kipr.Serial");
+	Serial *serialDBus = new Serial("org.kipr.Serial", "/org/kipr/Serial", QDBusConnection::systemBus());
 	
 	for(int i = 0; i < 2; ++i) {
 		if(!providers[i]) continue;
