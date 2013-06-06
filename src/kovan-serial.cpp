@@ -15,6 +15,8 @@
 #include <cstdio>
 #include <unistd.h>
 
+#define DEV_MODE
+
 std::string property(const std::string &prop)
 {
 	if(!prop.compare(KOVAN_PROPERTY_DISPLAY_NAME)) return "betabot";
@@ -34,6 +36,7 @@ int main(int argc, char *argv[])
 	
 	ServerThread *providers[2] = {0, 0};
 	
+#ifndef DEV_MODE
 	UsbSerial usb(serialPort);
 	// This may execute before the device is ready for opening.
 	// Wait until it is ready.
@@ -42,6 +45,7 @@ int main(int argc, char *argv[])
 		sleep(2);
 	}
 	providers[0] = new ServerThread(&usb);
+#endif
 	
 	TcpServer server;
 	server.bind(KOVAN_SERIAL_PORT);
@@ -71,7 +75,9 @@ int main(int argc, char *argv[])
 	
 	delete serialDBus;
 	
+#ifndef DEV_MODE
 	usb.endSession();
+#endif
 	server.endSession();
 	
 	return ret;

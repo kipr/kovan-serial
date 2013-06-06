@@ -32,6 +32,7 @@ signals:
 	
 protected:
 	bool handle(const Packet &p);
+	bool handleUntrusted(const Packet &p);
 	
 private:
 	void handleArchive(const Packet &headerPacket);

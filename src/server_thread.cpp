@@ -7,7 +7,10 @@
 #include <kovanserial/kovan_serial.hpp>
 #include <kovanserial/command_types.hpp>
 #include <kovanserial/general.hpp>
+#include <kovanserial/md5.hpp>
 #include <kovanserial/platform_defines.hpp>
+
+#include <kovan/config.hpp>
 
 #include <QDebug>
 #include <QFileInfo>
@@ -49,8 +52,9 @@ void ServerThread::run()
 	unsigned long i = 1;
 	while(!m_stop) {
 		QThread::msleep(100);
-		Transmitter::Return ret = m_transport->recv(p, 2);
-		if(ret == Transmitter::Success && handle(p)) std::cout << "Finished handling one command" << std::endl;
+		TransportLayer::Return ret = m_transport->recv(p, 2);
+		if(ret == TransportLayer::Success && handle(p)) std::cout << "Finished handling one command" << std::endl;
+		if(ret == TransportLayer::UntrustedSuccess && handleUntrusted(p)) std::cout << "Finished handling one UNTRUSTED command" << std::endl;
 		
 		// Linux will report an EIO error if the usb device is in an error state.
 		// The only problem is that we have to *write* to get that error code.
@@ -83,6 +87,37 @@ bool ServerThread::handle(const Packet &p)
 	else if(p.type == Command::FileHeader) handleArchive(p);
 	else if(p.type == Command::FileAction) handleAction(p);
 	else if(p.type == Command::Hangup) return false;
+	return true;
+}
+
+bool ServerThread::handleUntrusted(const Packet &p)
+{
+	std::cout << "Attempting untrusted command" << std::endl;
+	
+	Config *settings = Config::load(DEVICE_SETTINGS);
+	
+	// Lazy initialization of password
+	if(settings) {
+		settings->beginGroup("kovan_serial");
+		if(!settings->containsKey("password")) m_proto->setNoPassword();
+		else m_proto->setPassword(settings->stringValue("password"));
+	}
+	delete settings;
+	
+	if(p.type == Command::RequestAuthenticationInfo) {
+		m_proto->sendAuthenticationInfo(m_proto->isPassworded());
+	} else if(p.type == Command::RequestAuthentication) {
+		Command::RequestAuthenticationData data;
+		p.as(data);
+		
+		const bool valid = memcmp(data.password, m_proto->passwordMd5(), 16) == 0;
+		m_proto->confirmAuthentication(valid);
+	} else if(!m_proto->isPassworded()) {
+		// If there is no password set locally, allow any command
+		return handle(p);
+	} else return false;
+	
+	
 	return true;
 }
 

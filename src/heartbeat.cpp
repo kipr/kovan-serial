@@ -1,11 +1,10 @@
 #include "heartbeat.hpp"
+#include "constants.hpp"
 
 #include <kovan/config.hpp>
 
 #include <QTimer>
 #include <QDebug>
-
-#define DEVICE_SETTINGS "/etc/kovan/device.conf"
 
 Heartbeat::Heartbeat(QObject *parent)
 	: QObject(parent),
@@ -50,5 +49,5 @@ void Heartbeat::beat()
 	delete settings;
 	m_advertiser.reset();
 	m_advertiser.pulse(m_advert);
-	qDebug() << "Beat with" << name;
+	// qDebug() << "Beat with" << name;
 }
