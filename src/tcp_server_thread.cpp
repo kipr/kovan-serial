@@ -22,7 +22,5 @@ void TcpServerThread::run()
 			else if(ret == TransportLayer::UntrustedSuccess && handleUntrusted(p)) std::cout << "Handled untrusted command" << std::endl;
 			else break;
 		}
-		
-		proto()->clearSession();
 	}
 }

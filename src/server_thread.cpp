@@ -86,7 +86,10 @@ bool ServerThread::handle(const Packet &p)
 	if(p.type == Command::KnockKnock) m_proto->whosThere();
 	else if(p.type == Command::FileHeader) handleArchive(p);
 	else if(p.type == Command::FileAction) handleAction(p);
-	else if(p.type == Command::Hangup) return false;
+	else if(p.type == Command::Hangup) {
+		m_proto->clearSession();
+		return false;
+	}
 	return true;
 }
 
@@ -112,11 +115,14 @@ bool ServerThread::handleUntrusted(const Packet &p)
 		
 		const bool valid = memcmp(data.password, m_proto->passwordMd5(), 16) == 0;
 		m_proto->confirmAuthentication(valid);
+	} else if(p.type == Command::KnockKnock) {
+		m_proto->whosThere();
+	} else if(p.type == Command::Hangup) {
+		m_proto->clearSession();
+		return false;
 	} else if(!m_proto->isPassworded()) {
 		// If there is no password set locally, allow any command
 		return handle(p);
-	} else if(p.type == Command::KnockKnock) {
-		m_proto->whosThere();
 	} else return false;
 	
 	
