@@ -115,6 +115,8 @@ bool ServerThread::handleUntrusted(const Packet &p)
 	} else if(!m_proto->isPassworded()) {
 		// If there is no password set locally, allow any command
 		return handle(p);
+	} else if(p.type == Command::KnockKnock) {
+		m_proto->whosThere();
 	} else return false;
 	
 	
