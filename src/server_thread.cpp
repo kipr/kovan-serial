@@ -86,6 +86,7 @@ bool ServerThread::handle(const Packet &p)
 	if(p.type == Command::KnockKnock) m_proto->whosThere();
 	else if(p.type == Command::FileHeader) handleArchive(p);
 	else if(p.type == Command::FileAction) handleAction(p);
+	else if(p.type == Command::RequestProtocolVersion) m_proto->sendProtocolVersion();
 	else if(p.type == Command::Hangup) {
 		m_proto->clearSession();
 		return false;
@@ -120,6 +121,8 @@ bool ServerThread::handleUntrusted(const Packet &p)
 	} else if(p.type == Command::Hangup) {
 		m_proto->clearSession();
 		return false;
+	} else if(p.type == Command::RequestProtocolVersion) {
+		m_proto->sendProtocolVersion();
 	} else if(!m_proto->isPassworded()) {
 		// If there is no password set locally, allow any command
 		return handle(p);
