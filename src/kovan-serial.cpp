@@ -15,7 +15,7 @@
 #include <cstdio>
 #include <unistd.h>
 
-#define DEV_MODE
+// #define DEV_MODE
 
 std::string property(const std::string &prop)
 {
