@@ -18,8 +18,8 @@ void TcpServerThread::run()
 		if(!dynamic_cast<TcpServer *>(transmitter())->accept(1)) continue;
 		for(;;) {
 			TransportLayer::Return ret = proto()->next(p, 5000);
-			if(ret == TransportLayer::Success && handle(p)) std::cout << "Handled trusted command" << std::endl;
-			else if(ret == TransportLayer::UntrustedSuccess && handleUntrusted(p)) std::cout << "Handled untrusted command" << std::endl;
+			if(ret == TransportLayer::Success && handle(p)); //std::cout << "Handled trusted command" << std::endl;
+			else if(ret == TransportLayer::UntrustedSuccess && handleUntrusted(p)); //std::cout << "Handled untrusted command" << std::endl;
 			else break;
 		}
 	}

@@ -53,8 +53,8 @@ void ServerThread::run()
 	while(!m_stop) {
 		QThread::msleep(100);
 		TransportLayer::Return ret = m_transport->recv(p, 2);
-		if(ret == TransportLayer::Success && handle(p)) std::cout << "Finished handling one command" << std::endl;
-		if(ret == TransportLayer::UntrustedSuccess && handleUntrusted(p)) std::cout << "Finished handling one UNTRUSTED command" << std::endl;
+		if(ret == TransportLayer::Success && handle(p)); //std::cout << "Finished handling one command" << std::endl;
+		if(ret == TransportLayer::UntrustedSuccess && handleUntrusted(p)); //std::cout << "Finished handling one UNTRUSTED command" << std::endl;
 		
 		// Linux will report an EIO error if the usb device is in an error state.
 		// The only problem is that we have to *write* to get that error code.
@@ -82,7 +82,7 @@ KovanSerial *ServerThread::proto() const
 
 bool ServerThread::handle(const Packet &p)
 {
-	qDebug() << "Got packet of type" << p.type;
+	//qDebug() << "Got packet of type" << p.type;
 	if(p.type == Command::KnockKnock) m_proto->whosThere();
 	else if(p.type == Command::FileHeader) handleArchive(p);
 	else if(p.type == Command::FileAction) handleAction(p);
@@ -96,7 +96,7 @@ bool ServerThread::handle(const Packet &p)
 
 bool ServerThread::handleUntrusted(const Packet &p)
 {
-	std::cout << "Attempting untrusted command" << std::endl;
+	//std::cout << "Attempting untrusted command" << std::endl;
 	
 	Config *settings = Config::load(DEVICE_SETTINGS);
 	
@@ -134,7 +134,7 @@ bool ServerThread::handleUntrusted(const Packet &p)
 
 void ServerThread::handleArchive(const Packet &headerPacket)
 {
-	quint64 start = msystime();
+	//quint64 start = msystime();
 	
 	Command::FileHeaderData header;
 	headerPacket.as(header);
@@ -159,8 +159,8 @@ void ServerThread::handleArchive(const Packet &headerPacket)
 	
 	file.close();
 	
-	quint64 end = msystime();
-	qDebug() << "Took" << (end - start) << "milliseconds to recv";
+	//quint64 end = msystime();
+	//qDebug() << "Took" << (end - start) << "milliseconds to recv";
 }
 
 void ServerThread::handleAction(const Packet &action)
@@ -228,19 +228,21 @@ void ServerThread::handleAction(const Packet &action)
 
 	const QString arcPath = QString::fromStdString(USER_ARCHIVES_DIR) + "/" + data.dest;
 	const QString binPath = QString::fromStdString(USER_BINARIES_DIR) + "/" + data.dest;
+	const QString libPath = QString::fromStdString(USER_LIBRARIES_DIR) + "/lib" + data.dest;
 	
 	if(type == COMMAND_ACTION_COMPILE) {
 		Kiss::KarPtr archive = Kiss::Kar::load(arcPath);
 		const bool good = !archive.isNull();
-		qDebug() << "good?" << good;
+		//qDebug() << "good?" << good;
 		if(!m_proto->confirmFileAction(good) || !good) return;
 		
 		CompileWorker *worker = new CompileWorker(archive, m_proto);
-		worker->setResultPath(binPath);
+		worker->setBinPath(binPath);
+		worker->setLibPath(libPath);
 		worker->start();
 		worker->wait();
 		
-		qDebug() << "Sending results...";
+		//qDebug() << "Sending results...";
 		QByteArray data;
 		QDataStream stream(&data, QIODevice::WriteOnly);
 		stream << worker->output();
@@ -253,7 +255,7 @@ void ServerThread::handleAction(const Packet &action)
 		}
 	} else if(type == COMMAND_ACTION_RUN) {
 		const bool good = QFile::exists(binPath);
-		qDebug() << "good?" << good;
+		//qDebug() << "good?" << good;
 		if(!m_proto->confirmFileAction(good) || !good) return;
 		m_proto->sendFileActionProgress(true, 1.0);
 		emit run(binPath);

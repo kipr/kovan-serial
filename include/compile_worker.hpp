@@ -18,8 +18,10 @@ public:
 	
 	const Compiler::OutputList &output() const;
 	
-	void setResultPath(const QString &resultPath);
-	const QString &resultPath() const;
+	void setBinPath(const QString &binPath);
+	const QString &binPath() const;
+	void setLibPath(const QString &libPath);
+	const QString &libPath() const;
 	
 	void progress(double fraction);
 	
@@ -30,7 +32,8 @@ private:
 	Kiss::KarPtr m_archive;
 	KovanSerial *m_proto;
 	Compiler::OutputList m_output;
-	QString m_resultPath;
+	QString m_binPath;
+	QString m_libPath;
 };
 
 #endif
