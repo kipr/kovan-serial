@@ -229,6 +229,7 @@ void ServerThread::handleAction(const Packet &action)
 	const QString arcPath = QString::fromStdString(USER_ARCHIVES_DIR) + "/" + data.dest;
 	const QString binPath = QString::fromStdString(USER_BINARIES_DIR) + "/" + data.dest;
 	const QString libPath = QString::fromStdString(USER_LIBRARIES_DIR) + "/lib" + data.dest;
+	const QString headPath = QString::fromStdString(USER_HEADERS_DIR) + "/" + data.dest + "/";
 	
 	if(type == COMMAND_ACTION_COMPILE) {
 		Kiss::KarPtr archive = Kiss::Kar::load(arcPath);
@@ -239,6 +240,7 @@ void ServerThread::handleAction(const Packet &action)
 		CompileWorker *worker = new CompileWorker(archive, m_proto);
 		worker->setBinPath(binPath);
 		worker->setLibPath(libPath);
+		worker->setHeadPath(headPath);
 		worker->start();
 		worker->wait();
 		

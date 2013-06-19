@@ -1,4 +1,5 @@
 #include "compile_worker.hpp"
+#include "constants.hpp"
 
 #include <kovanserial/kovan_serial.hpp>
 #include <pcompiler/pcompiler.hpp>
@@ -71,19 +72,29 @@ void CompileWorker::setBinPath(const QString &binPath)
 	m_binPath = binPath;
 }
 
-const QString &CompileWorker::binPath() const
-{
-	return m_binPath;
-}
-
 void CompileWorker::setLibPath(const QString &libPath)
 {
 	m_libPath = libPath;
 }
 
+void CompileWorker::setHeadPath(const QString &headPath)
+{
+	m_headPath = headPath;
+}
+
+const QString &CompileWorker::binPath() const
+{
+	return m_binPath;
+}
+
 const QString &CompileWorker::libPath() const
 {
 	return m_libPath;
+}
+
+const QString &CompileWorker::headPath() const
+{
+	return m_headPath;
 }
 
 void CompileWorker::progress(double fraction)
@@ -113,6 +124,9 @@ Compiler::OutputList CompileWorker::compile()
 	// Invoke pcompiler on the extracted files
 	Engine engine(Compilers::instance()->compilers());
 	Options opts = Options::load("/etc/kovan/platform.hints");
+	const QString &includeFlag = QString::fromStdString(" -I" + USER_HEADERS_DIR);
+	opts["C_FLAGS"] = opts["C_FLAGS"] + includeFlag;
+	opts["CPP_FLAGS"] = opts["CPP_FLAGS"] + includeFlag;
 	opts.replace("${PREFIX}", QDir::currentPath() + "/prefix");
 	Compiler::OutputList ret = engine.compile(Input::fromList(extracted), opts, this);
 
@@ -135,14 +149,24 @@ Compiler::OutputList CompileWorker::compile()
 		QFileInfo fileInfo(out.generatedFiles()[0]);
 		const QString &fullBinPath = (fileInfo.suffix().isEmpty() ? m_binPath : m_binPath + "." + fileInfo.suffix());
 		const QString &fullLibPath = (fileInfo.suffix().isEmpty() ? m_libPath : m_libPath + "." + fileInfo.suffix());
+		const QString &fullHeaderPath = m_headPath + fileInfo.fileName();
 		QString destination;
-		if(out.terminal() == Output::BinaryTerminal) {
-			QFile::remove(fullBinPath);
-			destination = fullBinPath;
-		}
-		else if(out.terminal() == Output::LibraryTerminal) {
-			QFile::remove(fullLibPath);
-			destination = fullLibPath;
+		switch(out.terminal()) {
+			case Output::BinaryTerminal:
+				QFile::remove(fullBinPath);
+				destination = fullBinPath;
+				break;
+			case Output::LibraryTerminal:
+				QFile::remove(fullLibPath);
+				destination = fullLibPath;
+				break;
+			case Output::HeaderTerminal:
+				QFile::remove(fullHeaderPath);
+				destination = fullHeaderPath;
+				QDir().mkpath(m_headPath);
+				break;
+			default:
+				qDebug() << "Warning: unhandled terminal type";
 		}
 		if(!QFile::copy(fileInfo.absoluteFilePath(), destination)) {
 			ret << OutputList() << Output(path, 1, QByteArray(),
