@@ -133,7 +133,7 @@ Compiler::OutputList CompileWorker::compile()
 	// Pick out successful terminals
 	Compiler::OutputList terminals;
 	foreach(const Output& out, ret) {
-		if(out.isTerminal() && out.generatedFiles().size() == 1) {
+		if(out.isTerminal()) {
 			if(out.isSuccess()) terminals << out;
 			else qDebug() << "Terminal type" << out.terminal() << "unsuccessful.";
 		}
@@ -146,31 +146,39 @@ Compiler::OutputList CompileWorker::compile()
 
 	// Copy terminal files to the appropriate directories
 	foreach(const Output& out, terminals) {
-		QFileInfo fileInfo(out.generatedFiles()[0]);
-		const QString &fullBinPath = (fileInfo.suffix().isEmpty() ? m_binPath : m_binPath + "." + fileInfo.suffix());
-		const QString &fullLibPath = (fileInfo.suffix().isEmpty() ? m_libPath : m_libPath + "." + fileInfo.suffix());
-		const QString &fullHeaderPath = m_headPath + fileInfo.fileName();
-		QString destination;
-		switch(out.terminal()) {
-			case Output::BinaryTerminal:
-				QFile::remove(fullBinPath);
-				destination = fullBinPath;
-				break;
-			case Output::LibraryTerminal:
-				QFile::remove(fullLibPath);
-				destination = fullLibPath;
-				break;
-			case Output::HeaderTerminal:
-				QFile::remove(fullHeaderPath);
-				destination = fullHeaderPath;
-				QDir().mkpath(m_headPath);
-				break;
-			default:
-				qDebug() << "Warning: unhandled terminal type";
-		}
-		if(!QFile::copy(fileInfo.absoluteFilePath(), destination)) {
-			ret << OutputList() << Output(path, 1, QByteArray(),
-				("error: Failed to copy \"" + fileInfo.absoluteFilePath() + "\" to \"" + destination + "\"").toLatin1());
+		foreach(QString file, out.generatedFiles()) {
+			QFileInfo fileInfo(file);
+			QString destination;
+			switch(out.terminal()) {
+				case Output::BinaryTerminal:
+				{
+					const QString &fullBinPath = (fileInfo.suffix().isEmpty() ? m_binPath : m_binPath + "." + fileInfo.suffix());
+					QFile::remove(fullBinPath);
+					destination = fullBinPath;
+					break;
+				}
+				case Output::LibraryTerminal:
+				{
+					const QString &fullLibPath = (fileInfo.suffix().isEmpty() ? m_libPath : m_libPath + "." + fileInfo.suffix());
+					QFile::remove(fullLibPath);
+					destination = fullLibPath;
+					break;
+				}
+				case Output::HeaderTerminal:
+				{
+					const QString &fullHeaderPath = m_headPath + fileInfo.fileName();
+					QFile::remove(fullHeaderPath);
+					destination = fullHeaderPath;
+					QDir().mkpath(m_headPath);
+					break;
+				}
+				default:
+					qDebug() << "Warning: unhandled terminal type";
+			}
+			if(!QFile::copy(fileInfo.absoluteFilePath(), destination)) {
+				ret << OutputList() << Output(path, 1, QByteArray(),
+					("error: Failed to copy \"" + fileInfo.absoluteFilePath() + "\" to \"" + destination + "\"").toLatin1());
+			}
 		}
 	}
 
