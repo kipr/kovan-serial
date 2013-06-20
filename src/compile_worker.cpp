@@ -96,7 +96,7 @@ Compiler::OutputList CompileWorker::compile()
 	Cleaner cleaner(path);
 	if(!m_archive->extract(path)) {
 		return OutputList() << Output(path, 1,
-			QByteArray(), "error: Failed to extract KISS Archive.");
+			QByteArray(), "Error: Failed to extract KISS Archive.");
 	}
 	QStringList extracted;
 	foreach(const QString& file, m_archive->files()) extracted << path + "/" + file;
