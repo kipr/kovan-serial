@@ -126,7 +126,7 @@ Compiler::OutputList CompileWorker::compile()
 	}
 
 	// Copy terminal files to the appropriate directories
-	RootManager::install(terminals, "/kovan/prefix/", m_name);
+	ret << RootManager::install(terminals, "/kovan/prefix/", m_name);
 
 	return ret;
 }
