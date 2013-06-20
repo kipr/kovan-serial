@@ -96,7 +96,7 @@ Compiler::OutputList CompileWorker::compile()
 	Cleaner cleaner(path);
 	if(!m_archive->extract(path)) {
 		return OutputList() << Output(path, 1,
-			QByteArray(), "Error: Failed to extract KISS Archive.");
+			QByteArray(), "error: failed to extract KISS Archive");
 	}
 	QStringList extracted;
 	foreach(const QString& file, m_archive->files()) extracted << path + "/" + file;
@@ -121,7 +121,7 @@ Compiler::OutputList CompileWorker::compile()
 	}
 	if(terminals.isEmpty()) {
 		ret << Output(path, 1, QByteArray(),
-			"Warning: No successful terminals detected from compilation.");
+			"warning: no successful terminals detected from compilation");
 		return ret;
 	}
 
