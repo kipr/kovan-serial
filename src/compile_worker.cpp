@@ -3,6 +3,7 @@
 
 #include <kovanserial/kovan_serial.hpp>
 #include <pcompiler/pcompiler.hpp>
+#include <pcompiler/root_manager.hpp>
 
 #include <QFileInfo>
 #include <QDir>
@@ -67,34 +68,14 @@ const Compiler::OutputList &CompileWorker::output() const
 	return m_output;
 }
 
-void CompileWorker::setBinPath(const QString &binPath)
+void CompileWorker::setName(const QString &name)
 {
-	m_binPath = binPath;
+	m_name = name;
 }
 
-void CompileWorker::setLibPath(const QString &libPath)
+const QString &CompileWorker::name() const
 {
-	m_libPath = libPath;
-}
-
-void CompileWorker::setHeadPath(const QString &headPath)
-{
-	m_headPath = headPath;
-}
-
-const QString &CompileWorker::binPath() const
-{
-	return m_binPath;
-}
-
-const QString &CompileWorker::libPath() const
-{
-	return m_libPath;
-}
-
-const QString &CompileWorker::headPath() const
-{
-	return m_headPath;
+	return m_name;
 }
 
 void CompileWorker::progress(double fraction)
@@ -124,7 +105,7 @@ Compiler::OutputList CompileWorker::compile()
 	// Invoke pcompiler on the extracted files
 	Engine engine(Compilers::instance()->compilers());
 	Options opts = Options::load("/etc/kovan/platform.hints");
-	const QString &includeFlag = QString::fromStdString(" -I" + USER_HEADERS_DIR);
+	const QString &includeFlag = QString::fromStdString(" -I" + USER_ROOT + "/include");
 	opts["C_FLAGS"] = opts["C_FLAGS"] + includeFlag;
 	opts["CPP_FLAGS"] = opts["CPP_FLAGS"] + includeFlag;
 	opts.replace("${PREFIX}", QDir::currentPath() + "/prefix");
@@ -139,48 +120,13 @@ Compiler::OutputList CompileWorker::compile()
 		}
 	}
 	if(terminals.isEmpty()) {
-		ret << Output(path, 1,
-			QByteArray(), "Warning: No successful terminals detected from compilation.");
+		ret << Output(path, 1, QByteArray(),
+			"Warning: No successful terminals detected from compilation.");
 		return ret;
 	}
 
 	// Copy terminal files to the appropriate directories
-	foreach(const Output& out, terminals) {
-		foreach(QString file, out.generatedFiles()) {
-			QFileInfo fileInfo(file);
-			QString destination;
-			switch(out.terminal()) {
-				case Output::BinaryTerminal:
-				{
-					const QString &fullBinPath = (fileInfo.suffix().isEmpty() ? m_binPath : m_binPath + "." + fileInfo.suffix());
-					QFile::remove(fullBinPath);
-					destination = fullBinPath;
-					break;
-				}
-				case Output::LibraryTerminal:
-				{
-					const QString &fullLibPath = (fileInfo.suffix().isEmpty() ? m_libPath : m_libPath + "." + fileInfo.suffix());
-					QFile::remove(fullLibPath);
-					destination = fullLibPath;
-					break;
-				}
-				case Output::HeaderTerminal:
-				{
-					const QString &fullHeaderPath = m_headPath + fileInfo.fileName();
-					QFile::remove(fullHeaderPath);
-					destination = fullHeaderPath;
-					QDir().mkpath(m_headPath);
-					break;
-				}
-				default:
-					qDebug() << "Warning: unhandled terminal type";
-			}
-			if(!QFile::copy(fileInfo.absoluteFilePath(), destination)) {
-				ret << OutputList() << Output(path, 1, QByteArray(),
-					("error: Failed to copy \"" + fileInfo.absoluteFilePath() + "\" to \"" + destination + "\"").toLatin1());
-			}
-		}
-	}
+	RootManager::install(terminals, "/kovan/prefix/", m_name);
 
 	return ret;
 }

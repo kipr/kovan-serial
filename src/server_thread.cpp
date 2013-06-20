@@ -145,7 +145,7 @@ void ServerThread::handleArchive(const Packet &headerPacket)
 	}
 	
 	// Remove old binary
-	remove((USER_BINARIES_DIR + KOVAN_SERIAL_PATH_SEP + header.dest).c_str());
+	//remove((USER_BINARIES_DIR + KOVAN_SERIAL_PATH_SEP + header.dest).c_str());
 	
 	std::ofstream file((USER_ARCHIVES_DIR + KOVAN_SERIAL_PATH_SEP
 		+ header.dest).c_str(), std::ios::binary);
@@ -226,21 +226,15 @@ void ServerThread::handleAction(const Packet &action)
 		return;
 	}
 
-	const QString arcPath = QString::fromStdString(USER_ARCHIVES_DIR) + "/" + data.dest;
-	const QString binPath = QString::fromStdString(USER_BINARIES_DIR) + "/" + data.dest;
-	const QString libPath = QString::fromStdString(USER_LIBRARIES_DIR) + "/lib" + data.dest;
-	const QString headPath = QString::fromStdString(USER_HEADERS_DIR) + "/" + data.dest + "/";
-	
 	if(type == COMMAND_ACTION_COMPILE) {
+		const QString arcPath = QString::fromStdString(USER_ARCHIVES_DIR) + "/" + data.dest;
 		Kiss::KarPtr archive = Kiss::Kar::load(arcPath);
 		const bool good = !archive.isNull();
 		//qDebug() << "good?" << good;
 		if(!m_proto->confirmFileAction(good) || !good) return;
 		
 		CompileWorker *worker = new CompileWorker(archive, m_proto);
-		worker->setBinPath(binPath);
-		worker->setLibPath(libPath);
-		worker->setHeadPath(headPath);
+		worker->setName(data.dest);
 		worker->start();
 		worker->wait();
 		
@@ -256,6 +250,7 @@ void ServerThread::handleAction(const Packet &action)
 			return;
 		}
 	} else if(type == COMMAND_ACTION_RUN) {
+		const QString binPath = QString::fromStdString(USER_ROOT) + "/bin/" + data.dest + "/" + data.dest;
 		const bool good = QFile::exists(binPath);
 		//qDebug() << "good?" << good;
 		if(!m_proto->confirmFileAction(good) || !good) return;
