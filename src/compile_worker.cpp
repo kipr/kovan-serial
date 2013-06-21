@@ -114,19 +114,22 @@ Compiler::OutputList CompileWorker::compile()
 	// Pick out successful terminals
 	Compiler::OutputList terminals;
 	foreach(const Output& out, ret) {
-		if(out.isTerminal()) {
-			if(out.isSuccess()) terminals << out;
-			else qDebug() << "Terminal type" << out.terminal() << "unsuccessful.";
+		if(out.isTerminal() && out.generatedFiles().size() > 0) {
+			const Output::TerminalType &type = out.terminal();
+			if(out.isSuccess()) {
+				terminals << out;
+				if(type == Output::BinaryTerminal) {
+					ret << Output(out.generatedFiles()[0], 0, "note: successfully generated executable", QByteArray());
+				}
+				else if(type == Output::LibraryTerminal) {
+					ret << Output(out.generatedFiles()[0], 0, "note: successfully generated library", QByteArray());
+				}
+			}
 		}
-	}
-	if(terminals.isEmpty()) {
-		ret << Output(path, 1, QByteArray(),
-			"warning: no successful terminals detected from compilation");
-		return ret;
 	}
 
 	// Copy terminal files to the appropriate directories
-	ret << RootManager::install(terminals, "/kovan/prefix/", m_name);
+	if(!terminals.isEmpty()) ret << RootManager::install(terminals, "/kovan/prefix/", m_name);
 
 	return ret;
 }
