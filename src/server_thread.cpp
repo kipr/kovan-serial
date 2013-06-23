@@ -147,7 +147,7 @@ void ServerThread::handleArchive(const Packet &headerPacket)
 	// Remove old binary
 	//remove((USER_BINARIES_DIR + KOVAN_SERIAL_PATH_SEP + header.dest).c_str());
 	
-	std::ofstream file((USER_ARCHIVES_DIR + KOVAN_SERIAL_PATH_SEP
+	std::ofstream file((std::string(USER_ARCHIVES_DIR) + KOVAN_SERIAL_PATH_SEP
 		+ header.dest).c_str(), std::ios::binary);
 	good = file.is_open();
 	if(!m_proto->confirmFile(good) || !good) return;

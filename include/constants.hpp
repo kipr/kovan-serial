@@ -3,9 +3,9 @@
 
 #include <string>
 
-#define USER_ROOT (std::string("/kovan/prefix"))
+#define USER_ROOT ("/kovan/prefix")
 #define USER_BINARIES_DIR (USER_ROOT + "/binaries")
-#define USER_ARCHIVES_DIR (std::string("/kovan/archives"))
-#define DEVICE_SETTINGS "/etc/kovan/device.conf"
+#define USER_ARCHIVES_DIR ("/kovan/archives")
+#define DEVICE_SETTINGS ("/etc/kovan/device.conf")
 
 #endif

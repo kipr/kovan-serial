@@ -105,10 +105,7 @@ Compiler::OutputList CompileWorker::compile()
 	// Invoke pcompiler on the extracted files
 	Engine engine(Compilers::instance()->compilers());
 	Options opts = Options::load("/etc/kovan/platform.hints");
-	const QString &includeFlag = QString::fromStdString(" -I" + USER_ROOT + "/include");
-	opts["C_FLAGS"] = opts["C_FLAGS"] + includeFlag;
-	opts["CPP_FLAGS"] = opts["CPP_FLAGS"] + includeFlag;
-	opts.replace("${PREFIX}", QDir::currentPath() + "/prefix");
+	opts.setVariable("${USER_ROOT}", USER_ROOT);
 	Compiler::OutputList ret = engine.compile(Input::fromList(extracted), opts, this);
 
 	// Pick out successful terminals
