@@ -98,40 +98,45 @@ Compiler::OutputList CompileWorker::compile()
 		return OutputList() << Output(path, 1,
 			QByteArray(), "error: failed to extract KISS Archive");
 	}
+	
 	QStringList extracted;
-	foreach(const QString& file, m_archive->files()) extracted << path + "/" + file;
+	foreach(const QString &file, m_archive->files()) extracted << path
+		+ "/" + file;
 	qDebug() << "Extracted" << extracted;
 
 	// Invoke pcompiler on the extracted files
 	Engine engine(Compilers::instance()->compilers());
 	Options opts = Options::load("/etc/kovan/platform.hints");
 	opts.setVariable("${USER_ROOT}", USER_ROOT);
+	
 	Compiler::OutputList ret = engine.compile(Input::fromList(extracted), opts, this);
 
 	// Pick out successful terminals
-	Compiler::OutputList terminals;
-	foreach(const Output& out, ret) {
-		if(out.isTerminal() && out.generatedFiles().size() > 0) {
-			const Output::TerminalType &type = out.terminal();
-			if(out.isSuccess()) {
-				terminals << out;
-				if(type == Output::BinaryTerminal) {
-					ret << Output(out.generatedFiles()[0], 0, "note: successfully generated executable", QByteArray());
-				}
-				else if(type == Output::LibraryTerminal) {
-					ret << Output(out.generatedFiles()[0], 0, "note: successfully generated library", QByteArray());
-				}
-			}
+	bool terminal = false;
+	foreach(const Output &out, ret) {
+		if(!out.isTerminal() || !out.isSuccess() || out.generatedFiles().isEmpty()) continue;
+		terminal = true;
+		
+		const Output::TerminalType type = out.terminal();
+		if(type == Output::BinaryTerminal) {
+			ret << Output(out.generatedFiles()[0], 0, "note: successfully generated executable",
+				QByteArray());
+		} else if(type == Output::LibraryTerminal) {
+			ret << Output(out.generatedFiles()[0], 0, "note: successfully generated library",
+				QByteArray());
 		}
 	}
-
+	
+	if(!terminal) return ret;
+	
 	// Copy terminal files to the appropriate directories
-	if(!terminals.isEmpty()) ret << RootManager::install(terminals, "/kovan/prefix/", m_name);
+	ret << RootManager::install(terminals, USER_ROOT, m_name);
 
 	return ret;
 }
 
 QString CompileWorker::tempPath()
 {
-	return QDir::tempPath() + "/" + QDateTime::currentDateTime().toString("yyMMddhhmmss") + ".kovan-serial";
+	return QDir::tempPath() + "/" + QDateTime::currentDateTime().toString("yyMMddhhmmss")
+		+ ".kovan-serial";
 }
