@@ -130,7 +130,7 @@ Compiler::OutputList CompileWorker::compile()
 	if(terminals.isEmpty()) return ret;
 	
 	// Copy terminal files to the appropriate directories
-	ret << RootManager::install(terminals, USER_ROOT, m_name);
+	ret << RootManager(USER_ROOT).install(terminals, m_name);
 
 	return ret;
 }
