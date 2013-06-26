@@ -112,10 +112,10 @@ Compiler::OutputList CompileWorker::compile()
 	Compiler::OutputList ret = engine.compile(Input::fromList(extracted), opts, this);
 
 	// Pick out successful terminals
-	bool terminal = false;
+	Compiler::OutputList terminals;
 	foreach(const Output &out, ret) {
 		if(!out.isTerminal() || !out.isSuccess() || out.generatedFiles().isEmpty()) continue;
-		terminal = true;
+		terminals << out;
 		
 		const Output::TerminalType type = out.terminal();
 		if(type == Output::BinaryTerminal) {
@@ -127,7 +127,7 @@ Compiler::OutputList CompileWorker::compile()
 		}
 	}
 	
-	if(!terminal) return ret;
+	if(terminals.isEmpty()) return ret;
 	
 	// Copy terminal files to the appropriate directories
 	ret << RootManager::install(terminals, USER_ROOT, m_name);
