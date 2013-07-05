@@ -121,16 +121,14 @@ Compiler::OutputList CompileWorker::compile()
 		if(type == Output::BinaryTerminal) {
 			ret << Output(out.generatedFiles()[0], 0, "note: successfully generated executable",
 				QByteArray());
-		} else if(type == Output::LibraryTerminal) {
+		} else if(type == Output::DependencyTerminal) {
 			ret << Output(out.generatedFiles()[0], 0, "note: successfully generated library",
 				QByteArray());
 		}
 	}
 	
-	if(terminals.isEmpty()) return ret;
-	
 	// Copy terminal files to the appropriate directories
-	ret << RootManager(USER_ROOT).install(terminals, m_name);
+	if(!terminals.isEmpty()) ret << RootManager(USER_ROOT).install(terminals, m_name);
 
 	return ret;
 }
