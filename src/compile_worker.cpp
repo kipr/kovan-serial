@@ -89,7 +89,7 @@ void CompileWorker::progress(double fraction)
 Compiler::OutputList CompileWorker::compile()
 {
 	using namespace Compiler;
-	using namespace Kiss;
+	using namespace kiss;
 
 	// Extract the archive to a temporary directory
 	QString path = tempPath();
