@@ -128,7 +128,7 @@ Compiler::OutputList CompileWorker::compile()
 	}
 	
 	// Copy terminal files to the appropriate directories
-	ret << RootManager(USER_ROOT).install(terminals, ret);
+	ret << RootManager(USER_ROOT).install(ret, m_name);
 	return ret;
 }
 
