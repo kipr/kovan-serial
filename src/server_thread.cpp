@@ -230,7 +230,7 @@ void ServerThread::handleAction(const Packet &action)
 	if(type == COMMAND_ACTION_COMPILE) {
     RootManager root(USER_ROOT);
 		const QString arcPath = root.archivesPath(data.dest);
-		Kiss::KarPtr archive = Kiss::Kar::load(arcPath);
+		kiss::KarPtr archive = kiss::Kar::load(arcPath);
 		const bool good = !archive.isNull();
 		//qDebug() << "good?" << good;
 		if(!m_proto->confirmFileAction(good) || !good) return;
