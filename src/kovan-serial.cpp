@@ -17,15 +17,6 @@
 
 #define DEV_MODE
 
-std::string property(const std::string &prop)
-{
-	if(!prop.compare(KOVAN_PROPERTY_DISPLAY_NAME)) return "betabot";
-	if(!prop.compare(KOVAN_PROPERTY_SERIAL)) return "1234";
-	if(!prop.compare(KOVAN_PROPERTY_VERSION)) return "0.1";
-	if(!prop.compare(KOVAN_PROPERTY_DEVICE)) return "kovan";
-	return "";
-}
-
 int main(int argc, char *argv[])
 {
 	QCoreApplication app(argc, argv);

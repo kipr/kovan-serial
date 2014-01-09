@@ -3,9 +3,7 @@
 
 #include <string>
 
-#define USER_ROOT ("/kovan/prefix")
-#define USER_BINARIES_DIR (USER_ROOT + "/binaries")
-#define USER_ARCHIVES_DIR ("/kovan/archives")
+#define USER_ROOT ("/kovan")
 #define DEVICE_SETTINGS ("/etc/kovan/device.conf")
 
 #endif

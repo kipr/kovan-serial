@@ -147,8 +147,8 @@ void ServerThread::handleArchive(const Packet &headerPacket)
 	// Remove old binary
 	//remove((USER_BINARIES_DIR + KOVAN_SERIAL_PATH_SEP + header.dest).c_str());
 	
-	std::ofstream file((std::string(USER_ARCHIVES_DIR) + KOVAN_SERIAL_PATH_SEP
-		+ header.dest).c_str(), std::ios::binary);
+  RootManager root(USER_ROOT);
+	std::ofstream file(root.archivesPath(header.dest).toUtf8(), std::ios::binary);
 	good = file.is_open();
 	if(!m_proto->confirmFile(good) || !good) return;
 	
@@ -227,7 +227,8 @@ void ServerThread::handleAction(const Packet &action)
 	}
 
 	if(type == COMMAND_ACTION_COMPILE) {
-		const QString arcPath = QString::fromStdString(USER_ARCHIVES_DIR) + "/" + data.dest;
+    RootManager root(USER_ROOT);
+		const QString arcPath = root.archivesPath(data.dest);
 		Kiss::KarPtr archive = Kiss::Kar::load(arcPath);
 		const bool good = !archive.isNull();
 		//qDebug() << "good?" << good;

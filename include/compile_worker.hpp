@@ -3,7 +3,7 @@
 
 #include <QThread>
 
-#include <kar.hpp>
+#include <kar/kar.hpp>
 #include <pcompiler/output.hpp>
 #include <pcompiler/progress.hpp>
 

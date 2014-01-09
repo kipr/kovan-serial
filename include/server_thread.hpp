@@ -5,7 +5,7 @@
 #include <QString>
 #include <QThread>
 
-#include <kar.hpp>
+#include <kar/kar.hpp>
 #include <kovanserial/transport_layer.hpp>
 
 class Transmitter;
