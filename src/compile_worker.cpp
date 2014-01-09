@@ -46,7 +46,7 @@ private:
 	QString path;
 };
 
-CompileWorker::CompileWorker(const Kiss::KarPtr &archive, KovanSerial *proto, QObject *parent)
+CompileWorker::CompileWorker(const kiss::KarPtr &archive, KovanSerial *proto, QObject *parent)
 	: QThread(parent),
 	m_archive(archive),
 	m_proto(proto)
