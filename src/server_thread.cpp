@@ -11,6 +11,7 @@
 #include <kovanserial/platform_defines.hpp>
 
 #include <kovan/config.hpp>
+#include <pcompiler/root_manager.hpp>
 
 #include <QDebug>
 #include <QFileInfo>
