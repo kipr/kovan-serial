@@ -15,7 +15,7 @@
 #include <cstdio>
 #include <unistd.h>
 
-#define DEV_MODE
+// #define DEV_MODE
 
 int main(int argc, char *argv[])
 {
