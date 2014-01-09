@@ -45,7 +45,7 @@ void Heartbeat::beat()
 	Config *settings = Config::load(DEVICE_SETTINGS);
 	QString name = tr("Nameless");
 	if(settings) name = QString::fromStdString(settings->stringValue("device_name"));
-	m_advert = Advert("Unknown", "Unknown", "KIPR Link", name.toUtf8());
+	m_advert = Advert("Unknown", "Unknown", "KIPR Link", name.toUtf8(), 8374);
 	delete settings;
 	m_advertiser.reset();
 	m_advertiser.pulse(m_advert);
