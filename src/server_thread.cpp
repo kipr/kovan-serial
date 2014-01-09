@@ -21,6 +21,8 @@
 #include <iostream>
 #include <sstream>
 
+using namespace Compiler;
+
 ServerThread::ServerThread(Transmitter *transmitter)
 	: m_stop(false),
 	m_transmitter(transmitter),
