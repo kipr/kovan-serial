@@ -12,7 +12,7 @@ class KovanSerial;
 class CompileWorker : public QThread, public Compiler::Progress
 {
 public:
-	CompileWorker(const Kiss::KarPtr &archive, KovanSerial *proto, QObject *parent = 0);
+	CompileWorker(const kiss::KarPtr &archive, KovanSerial *proto, QObject *parent = 0);
 	
 	void run();
 	
@@ -27,7 +27,7 @@ private:
 	Compiler::OutputList compile();
 	static QString tempPath();
 	
-	Kiss::KarPtr m_archive;
+	kiss::KarPtr m_archive;
 	KovanSerial *m_proto;
 	Compiler::OutputList m_output;
 	QString m_name;
