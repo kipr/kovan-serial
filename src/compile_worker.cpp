@@ -110,22 +110,6 @@ Compiler::OutputList CompileWorker::compile()
 	opts.setVariable("${USER_ROOT}", USER_ROOT);
 	
 	Compiler::OutputList ret = engine.compile(Input::fromList(extracted), opts, this);
-
-	// Pick out successful terminals
-	Compiler::OutputList terminals;
-	foreach(const Output &out, ret) {
-		if(!out.isTerminal() || !out.isSuccess() || out.generatedFiles().isEmpty()) continue;
-		terminals << out;
-		
-		const Output::TerminalType type = out.terminal();
-		if(type == Output::BinaryTerminal) {
-			ret << Output(out.generatedFiles()[0], 0, "note: successfully generated executable",
-				QByteArray());
-		} else if(type == Output::DependencyTerminal) {
-			ret << Output(out.generatedFiles()[0], 0, "note: successfully generated library",
-				QByteArray());
-		}
-	}
 	
 	// Copy terminal files to the appropriate directories
 	ret << RootManager(USER_ROOT).install(ret, m_name);

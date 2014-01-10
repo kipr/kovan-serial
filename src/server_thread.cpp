@@ -236,6 +236,14 @@ void ServerThread::handleAction(const Packet &action)
 		const bool good = !archive.isNull();
 		//qDebug() << "good?" << good;
 		if(!m_proto->confirmFileAction(good) || !good) return;
+    
+		QFile file(":/target.c");
+		if(!file.open(QIODevice::ReadOnly)) {
+			qWarning() << "Failed to inject target.c";
+		} else {
+			archive->setFile("__internal_target___.c", file.readAll());
+			file.close();
+		}
 		
 		CompileWorker *worker = new CompileWorker(archive, m_proto);
 		worker->setName(data.dest);

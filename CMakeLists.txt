@@ -6,6 +6,7 @@ FIND_PACKAGE(Qt4 REQUIRED)
 
 SET(INCLUDE ${CMAKE_SOURCE_DIR}/include)
 SET(SRC ${CMAKE_SOURCE_DIR}/src)
+SET(RC ${CMAKE_SOURCE_DIR}/rc)
 
 SET(DBUS ${CMAKE_SOURCE_DIR}/dbus)
 
@@ -28,6 +29,7 @@ SET(kovan-serial_SRCS_CXX ${SOURCES})
 SET(kovan-serial_MOC_SRCS ${INCLUDES})
 
 QT4_WRAP_CPP(kovan-serial_SRCS_CXX ${kovan-serial_MOC_SRCS})
+QT4_ADD_RESOURCES(kovan-serial_SRCS_CXX ${RC}/target.qrc)
 
 ADD_DEFINITIONS(-Wall)
 ADD_EXECUTABLE(kovan-serial ${kovan-serial_SRCS_CXX})
