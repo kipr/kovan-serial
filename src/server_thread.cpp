@@ -231,7 +231,7 @@ void ServerThread::handleAction(const Packet &action)
 
 	if(type == COMMAND_ACTION_COMPILE) {
     RootManager root(USER_ROOT);
-		const QString arcPath = QDir::temp().filePath("incoming_download.%1").arg(qRand());
+		const QString arcPath = QDir::temp().filePath("incoming_download.%1").arg(qrand());
 		kiss::KarPtr archive = kiss::Kar::load(arcPath);
 		const bool good = !archive.isNull();
 		//qDebug() << "good?" << good;
@@ -241,7 +241,7 @@ void ServerThread::handleAction(const Packet &action)
     bool isCProj = false;
     Q_FOREACH(const QString &file, archive->files()) {
       QFileInfo info(file);
-      isCProj |= cExts.contains(info.completeSuffix(), Qt::CaseInsensitive);
+      isCProj |= (bool)cExts.contains(info.completeSuffix(), Qt::CaseInsensitive);
     }
     
     if(isCProj) {
