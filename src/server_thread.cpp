@@ -231,8 +231,7 @@ void ServerThread::handleAction(const Packet &action)
 
 	if(type == COMMAND_ACTION_COMPILE) {
     RootManager root(USER_ROOT);
-		const QString arcPath = QDir::temp().filePath("incoming_download.%1").arg(qrand());
-		kiss::KarPtr archive = kiss::Kar::load(arcPath);
+		kiss::KarPtr archive = kiss::Kar::load(root.archivesPath(data.dest));
 		const bool good = !archive.isNull();
 		//qDebug() << "good?" << good;
 		if(!m_proto->confirmFileAction(good) || !good) return;
@@ -263,8 +262,6 @@ void ServerThread::handleAction(const Packet &action)
 		QByteArray ddata;
 		QDataStream stream(&ddata, QIODevice::WriteOnly);
 		stream << worker->output();
-		
-    QFile::rename(arcPath, root.archivesPath(data.dest));
     
 		std::istringstream sstream;
 		sstream.rdbuf()->pubsetbuf(ddata.data(), ddata.size());
