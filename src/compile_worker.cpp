@@ -111,8 +111,12 @@ Compiler::OutputList CompileWorker::compile()
 	
 	Compiler::OutputList ret = engine.compile(Input::fromList(extracted), opts, this);
 	
+  bool success = true;
+  foreach(const Compiler::Output &o, ret) success &= o.isSuccess();
+  
 	// Copy terminal files to the appropriate directories
-	ret << RootManager(USER_ROOT).install(ret, m_name);
+	if(success) ret << RootManager(USER_ROOT).install(ret, m_name);
+  
 	return ret;
 }
 

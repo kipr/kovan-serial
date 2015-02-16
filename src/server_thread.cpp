@@ -231,19 +231,28 @@ void ServerThread::handleAction(const Packet &action)
 
 	if(type == COMMAND_ACTION_COMPILE) {
     RootManager root(USER_ROOT);
-		const QString arcPath = root.archivesPath(data.dest);
+		const QString arcPath = QDir::temp().filePath("incoming_download.%1").arg(qRand());
 		kiss::KarPtr archive = kiss::Kar::load(arcPath);
 		const bool good = !archive.isNull();
 		//qDebug() << "good?" << good;
 		if(!m_proto->confirmFileAction(good) || !good) return;
     
-		QFile file(":/target.c");
-		if(!file.open(QIODevice::ReadOnly)) {
-			qWarning() << "Failed to inject target.c";
-		} else {
-			archive->setFile("__internal_target___.c", file.readAll());
-			file.close();
-		}
+    const QStringList cExts = QStringList() << "c" << "cpp" << "cxx" << "cc";
+    bool isCProj = false;
+    Q_FOREACH(const QString &file, archive->files()) {
+      QFileInfo info(file);
+      isCProj |= cExts.contains(info.completeSuffix(), Qt::CaseInsensitive);
+    }
+    
+    if(isCProj) {
+      QFile file(":/target.c");
+      if(!file.open(QIODevice::ReadOnly)) {
+        qWarning() << "Failed to inject target.c";
+      } else {
+        archive->setFile("__internal_target___.c", file.readAll());
+        file.close();
+      }
+    }
 		
 		CompileWorker *worker = new CompileWorker(archive, m_proto);
 		worker->setName(data.dest);
@@ -251,12 +260,14 @@ void ServerThread::handleAction(const Packet &action)
 		worker->wait();
 		
 		//qDebug() << "Sending results...";
-		QByteArray data;
-		QDataStream stream(&data, QIODevice::WriteOnly);
+		QByteArray ddata;
+		QDataStream stream(&ddata, QIODevice::WriteOnly);
 		stream << worker->output();
 		
+    QFile::rename(arcPath, root.archivesPath(data.dest));
+    
 		std::istringstream sstream;
-		sstream.rdbuf()->pubsetbuf(data.data(), data.size());
+		sstream.rdbuf()->pubsetbuf(ddata.data(), ddata.size());
 		if(!m_proto->sendFile("", "col", &sstream)) {
 			qWarning() << "Sending result failed";
 			return;
@@ -267,6 +278,7 @@ void ServerThread::handleAction(const Packet &action)
 		//qDebug() << "good?" << good;
 		if(!m_proto->confirmFileAction(good) || !good) return;
 		m_proto->sendFileActionProgress(true, 1.0);
+    
 		emit run(binPath);
 	} else m_proto->confirmFileAction(false);
 }
